@@ -1,0 +1,56 @@
+controller -> contains the APIs
+service -> contains the business logic
+repository -> talks to DB, does CRUD
+model -> contains schema
+client -> classes that will talk to other services
+
+ProductService -> FakeStore Service
+FakeStoreClient -> contains the code to communicate with FakeStore
+
+Spring -->
+RestTemplate -> becoming deprecated
+WebClient -> latest
+
+Code Flow :::
+ ProductController --> ProductService --> FakeStoreClient ... And then back in the same way.
+
+-----------------------
+
+Maintain version in the API URL -> /something/v1/something/
+Whenever we change the API contract -> we should also change the URL
+We change the versions, v1 -> v2
+
+New URL -> /something/v2/something
+API contract -> how to use the API, the inputs required and the output structure
+
+---------------------
+repo -> Product findById(id) -> returning entire Product[5]
+service -> repo -> gets entire Product[5]
+controller -> service -> get entire Product[5]
+
+controller can convert object to DTO -> return to UI with lesser attributes
+ProductDTO[2]
+
+
+repo -> ProductProjection findById(id) -> returns subset of Product, ProductProjection[3]
+service -> gets smaller subset -> ProductProjection[3]
+controller -> service -> ProductProjection[3]
+
+controller can again use a DTO -> return even smaller subset,
+ProductInfoDTO[2]
+
+
+------- Product service ------
+1. CRUD operations on Product
+2. CRUD operations on Category
+3. Get all products from Category API
+
+--- Still need to implement ---
+4. Get Category from Product API
+5. Add Category to Product ==> updateProductApi()
+6. Remove category from Product
+7. Add product to category
+8. Remove product from category
+
+5-7 and 6-8 are essentially same at DB level, but can be perceived differently
+at an API level.
