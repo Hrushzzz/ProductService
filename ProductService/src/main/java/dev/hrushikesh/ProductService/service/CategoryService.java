@@ -55,4 +55,14 @@ public class CategoryService {
         );
         return category;
     }
+
+    public boolean deleteCategory(int categoryId){
+        Category category = getCategory(categoryId);
+        for(Product product : category.getProducts()){
+            productService.deleteProduct(product.getId());
+        }
+        categoryRepository.deleteById(categoryId);
+        return true;
+    }
+
 }

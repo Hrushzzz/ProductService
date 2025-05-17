@@ -2,10 +2,12 @@ package dev.hrushikesh.ProductService.controller;
 
 import dev.hrushikesh.ProductService.dto.FakeStoreProductDTO;
 import dev.hrushikesh.ProductService.dto.ProductProjection;
+import dev.hrushikesh.ProductService.dto.ProductReqDTO;
 import dev.hrushikesh.ProductService.dto.ProductResponseDTO;
 import dev.hrushikesh.ProductService.model.Product;
 import dev.hrushikesh.ProductService.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,29 +22,21 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @GetMapping("/product/category/{id}")
-    public ResponseEntity<List<ProductResponseDTO>> getAllProductsByCategory(@PathVariable("id") int categoryId) {
-        List<Product> savedProducts = productService.getAllProductByCategoryId(categoryId);
-        List<ProductResponseDTO> productResponseDTOS = new ArrayList<>();
-        for (Product product : savedProducts) {
-            ProductResponseDTO responseDTO = new ProductResponseDTO(
-                    product.getName(),
-                    product.getDescription(),
-                    product.getPrice(),
-                    product.getRating()
-            );
-            productResponseDTOS.add(responseDTO);
-        }
-        return ResponseEntity.ok(productResponseDTOS);
-    }
-
-    @PostMapping("/")
-    public ResponseEntity<Product> createProduct(@RequestBody Product product){
-        Product savedProduct = productService.saveProduct(product);
+    @PostMapping("/product")
+    public ResponseEntity<Product> createProduct(@RequestBody ProductReqDTO productReqDTO){
+        Product savedProduct = productService.saveProduct(productReqDTO);
         return ResponseEntity.ok(savedProduct);
     }
 
-    @GetMapping("/v1/product")
+    @GetMapping("/all/product/{pageNumber}/{ascFilter}/{descFilter}")
+    public ResponseEntity<Page<Product>> getAllProducts(@PathVariable("pageNumber") int pageNumber,
+                                                        @PathVariable("ascFilter") String ascFilter,
+                                                        @PathVariable("descFilter") String descFilter ){
+        Page<Product> products = productService.getAllProductsPaginated(pageNumber, ascFilter, descFilter);
+        return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/all/product")
     public ResponseEntity<List<Product>> getAllProducts(){
         List<Product> products = productService.getAllProducts();
         return ResponseEntity.ok(products);
@@ -73,15 +67,14 @@ public class ProductController {
     }
 
 
+//    FakeStore API end points :::
 
-//    Practice API's on FakeStore data :::
-
-    @GetMapping("/product")
+    @GetMapping("/fakestore/product")
     public FakeStoreProductDTO[] getAllProductsFake() {
         return productService.getAllProductsFromFakeStore();
     }
 
-    @GetMapping("/product/{id}")
+    @GetMapping("fakestore/product/{id}")
     public ResponseEntity<FakeStoreProductDTO> getProduct(@PathVariable("id") int id) {
         if (id <= 0) {
             throw new IllegalArgumentException("Product doesn't exist");
@@ -92,17 +85,17 @@ public class ProductController {
         return new ResponseEntity<>(fakeStoreProductDTO, HttpStatus.OK);
     }
 
-    @PostMapping("/product")
+    @PostMapping("fakestore/product")
     public FakeStoreProductDTO createProduct(@RequestBody FakeStoreProductDTO fakeStoreProductDTO) {
         return productService.createProduct(fakeStoreProductDTO);
     }
 
-    @PutMapping("/product/{id}")
+    @PutMapping("fakestore/product/{id}")
     public FakeStoreProductDTO replaceProduct(@PathVariable("id") int id, @RequestBody FakeStoreProductDTO fakeStoreProductDTO) {
         return productService.replaceProduct(id, fakeStoreProductDTO);
     }
 
-    @DeleteMapping("/product/{id}")
+    @DeleteMapping("fakestore/product/{id}")
     public Boolean deleteProduct(@PathVariable("id") int id) {
         return productService.deleteProduct(id);
     }
